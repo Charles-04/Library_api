@@ -15,7 +15,7 @@ model User {
   email                        String  @unique
   name                         String
   code                         String
-  borrowedBooks                Book[]  @relation(name: "borrowed_books")
+  borrowedBooks                Lending[]  @relation(name: "borrowed_books")
 
   @@map(name: "user")
 }
@@ -25,9 +25,20 @@ model Book {
   name                         String
   author                       String
   code                         String
-  isBorrowed                   Boolean?
-  borrower                     User?   @relation(name: "borrowed_books", fields: [userId], references: [id])
-  userId                       String? @db.ObjectId
+  isBorrowed                   Boolean? @default(false)
+  isbn                         Int
+  coverImageUrl                String?
+  
+
+
+  
+  
   @@map(name: "book")
   
 }
+ model Lending{
+   id  String  @id @default(auto()) @map("_id") @db.ObjectId
+   borrower                     User?   @relation(name: "borrowed_books", fields: [userId], references: [id])
+   userId                       String? @db.ObjectId
+   @@map(name:"lending")
+ }
