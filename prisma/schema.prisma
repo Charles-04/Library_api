@@ -9,48 +9,137 @@ datasource db {
   provider = "mongodb"
   url      = env("DATABASE_URL")
 }
-enum lendingStatus{
+
+enum lendingStatus {
   PENDING
   APPROVED
   REJECTED
 }
 
 model User {
-  id                           String  @id @default(auto()) @map("_id") @db.ObjectId
-  email                        String  @unique
-  name                         String
-  address                      String
-  avatar                       String
-  code                         String
-  borrowedBooks                Lending[]  @relation(name: "borrowed_books")
+  id            String    @id @default(auto()) @map("_id") @db.ObjectId
+  email         String    @unique
+  password      String
+  name          String
+  facebookUrl   String?
+  linkedinUrl   String?
+  instagramUrl  String?
+  twitterUrl    String?
+  websiteUrl    String?
+  youtubeUrl    String?
+  address       Location? @relation(fields: [addressId], references: [id])
+  addressId     String?
+  avatar        String?
+  code          String
+  borrowedBooks Lending[] @relation(name: "borrowed_books")
 
   @@map(name: "user")
 }
 
-model Book {
-  id                           String  @id @default(auto()) @map("_id") @db.ObjectId
-  name                         String
-  author                       String
-  code                         String
-  isBorrowed                   Boolean? @default(false)
-  isbn                         Int?
-  coverImageUrl                String?
-  quantity                     Int
-  borrowedbooks                Lending[] @relation(name:"books")
+model Location {
+  id        String           @id @default(auto()) @map("_id") @db.ObjectId
+  address   String?
+  postCode  String?
+  latitude  Float?
+  longitude Float?
+  state     LocationState?   @relation(fields: [stateId], references: [id])
+  stateId   String?
+  country   LocationCountry? @relation(fields: [countryId], references: [id])
+  countryId String?
+  createdAt DateTime         @default(now())
+  createdBy String?
+  updatedAt DateTime         @updatedAt
+  updatedBy String?
+  deleted   Boolean          @default(false)
+  deletedAt DateTime?
+  deletedBy String?
 
-
-
-  
-  
-  @@map(name: "book")
-  
+  @@map(name: "location")
+  User User[]
 }
- model Lending{
-   id                           String  @id @default(auto()) @map("_id") @db.ObjectId
-   book                         Book? @relation(name: "books",fields: [bookId], references: [id])      
-   borrower                     User?   @relation(name: "borrowed_books", fields: [userId], references: [id])
-   status                       lendingStatus
-   userId                       String? @db.ObjectId
-   bookId                       String? @db.ObjectId
-   @@map(name:"lending")
- }
+
+model LocationCountry {
+  id             String          @id @default(auto()) @map("_id") @db.ObjectId
+  name           String
+  iso3           String?
+  numericCode    String?
+  iso2           String?         @unique
+  phoneCode      String?
+  capital        String?
+  currency       String?
+  currencySymbol String?
+  tld            String?
+  native         String?
+  region         String?
+  subregion      String?
+  timezones      String?
+  translations   String?
+  latitude       Float?
+  longitude      Float?
+  emoji          String?
+  emojiu         String?
+  wikiDataId     String?
+  states         LocationState[] @relation("country_state")
+  createdAt      DateTime        @default(now())
+  createdBy      String?
+  updatedAt      DateTime        @updatedAt
+  updatedBy      String?
+  deleted        Boolean         @default(false)
+  deletedAt      DateTime?
+  deletedBy      String?
+
+  locations Location[]
+  @@map("location_country")
+}
+
+model LocationState {
+  id           String           @id @default(auto()) @map("_id") @db.ObjectId
+  code         String
+  name         String
+  countryCode  String
+  abbreviation String?
+  latitude     Float?
+  longitude    Float?
+  country      LocationCountry? @relation("country_state", fields: [countryId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  countryId    String?          @db.ObjectId
+  locations    Location[]
+  createdAt    DateTime         @default(now())
+  createdBy    String?
+  updatedAt    DateTime         @updatedAt
+  updatedBy    String?
+  deleted      Boolean          @default(false)
+  deletedAt    DateTime?
+  deletedBy    String?
+
+  @@map("location_state")
+}
+
+model Book {
+  id            String    @id @default(auto()) @map("_id") @db.ObjectId
+  name          String
+  author        String
+  code          String
+  isBorrowed    Boolean?  @default(false)
+  isbn          Int?
+  coverImageUrl String?
+  quantity      Int
+  borrowedbooks Lending[] @relation(name: "books")
+
+
+
+
+
+
+  @@map(name: "book")
+}
+
+model Lending {
+  id       String        @id @default(auto()) @map("_id") @db.ObjectId
+  book     Book?         @relation(name: "books", fields: [bookId], references: [id])
+  borrower User?         @relation(name: "borrowed_books", fields: [userId], references: [id])
+  status   lendingStatus
+  userId   String?       @db.ObjectId
+  bookId   String?       @db.ObjectId
+
+  @@map(name: "lending")
+}
