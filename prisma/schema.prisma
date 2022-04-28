@@ -124,22 +124,30 @@ model Book {
   coverImageUrl String?
   quantity      Int
   borrowedbooks Lending[] @relation(name: "books")
-
-
-
-
-
-
+  createdAt    DateTime         @default(now())
+  createdBy    String?
+  updatedAt    DateTime         @updatedAt
+  updatedBy    String?
+  deleted      Boolean          @default(false)
+  deletedAt    DateTime?
+  deletedBy    String?
   @@map(name: "book")
 }
 
 model Lending {
-  id       String        @id @default(auto()) @map("_id") @db.ObjectId
-  book     Book?         @relation(name: "books", fields: [bookId], references: [id])
-  borrower User?         @relation(name: "borrowed_books", fields: [userId], references: [id])
-  status   lendingStatus
-  userId   String?       @db.ObjectId
-  bookId   String?       @db.ObjectId
+  id           String        @id @default(auto()) @map("_id") @db.ObjectId
+  book         Book?         @relation(name: "books", fields: [bookId], references: [id])
+  borrower     User?         @relation(name: "borrowed_books", fields: [userId], references: [id])
+  status       lendingStatus
+  userId       String?       @db.ObjectId
+  bookId       String?       @db.ObjectId
+  createdAt    DateTime         @default(now())
+  createdBy    String?
+  updatedAt    DateTime         @updatedAt
+  updatedBy    String?
+  deleted      Boolean          @default(false)
+  deletedAt    DateTime?
+  deletedBy    String?
 
   @@map(name: "lending")
 }
